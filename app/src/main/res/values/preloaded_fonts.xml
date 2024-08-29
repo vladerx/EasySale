@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/amarante</item>
+        <item>@font/arbutus</item>
+        <item>@font/bakbak_one</item>
+        <item>@font/imprima</item>
+        <item>@font/luckiest_guy</item>
+        <item>@font/modak</item>
+        <item>@font/spicy_rice</item>
+        <item>@font/unlock</item>
+    </array>
+</resources>

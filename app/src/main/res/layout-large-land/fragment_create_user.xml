@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/updatebgland"
+    android:gravity="center_horizontal|top"
+    android:orientation="vertical"
+    tools:context=".CreateUserFragment">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/createImageView"
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:layout_marginTop="10dp"
+        app:civ_border_color="#FFFFFFFF" />
+
+    <TextView
+        android:id="@+id/imageTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/unlock"
+        android:gravity="center"
+        android:text="Upload Image"
+        android:textColor="#ddddf0"
+        android:textColorHighlight="#ddddf0"
+        android:textColorHint="#ddddf0"
+        android:textColorLink="#ddddf0"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/createFNEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/rect_white_bg"
+        android:backgroundTint="#86FFFFFF"
+        android:ems="10"
+        android:fontFamily="@font/unlock"
+        android:hint="First Name:"
+        android:inputType="text"
+        android:paddingLeft="10dp"
+        android:textColor="#ddddf0"
+        android:textColorHighlight="#ddddf0"
+        android:textColorHint="#ddddf0"
+        android:textColorLink="#ddddf0"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.507"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/createLNEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/rect_white_bg"
+        android:backgroundTint="#86FFFFFF"
+        android:ems="10"
+        android:fontFamily="@font/unlock"
+        android:hint="Last Name:"
+        android:inputType="text"
+        android:paddingLeft="10dp"
+        android:textColor="#ddddf0"
+        android:textColorHighlight="#ddddf0"
+        android:textColorHint="#ddddf0"
+        android:textColorLink="#ddddf0"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createImageView" />
+
+    <EditText
+        android:id="@+id/createEmailEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/rect_white_bg"
+        android:backgroundTint="#86FFFFFF"
+        android:ems="10"
+        android:fontFamily="@font/unlock"
+        android:hint="Email:"
+        android:inputType="text"
+        android:paddingLeft="10dp"
+        android:textColor="#ddddf0"
+        android:textColorHighlight="#ddddf0"
+        android:textColorHint="#ddddf0"
+        android:textColorLink="#ddddf0"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createFNEditText" />
+
+    <Button
+        android:id="@+id/createButton"
+        android:layout_width="140dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#6500DE"
+        android:focusableInTouchMode="false"
+        android:fontFamily="@font/unlock"
+        android:gravity="center"
+        android:text="Create"
+        android:textColor="#ddddf0"
+        android:textColorHighlight="#ddddf0"
+        android:textColorHint="#ddddf0"
+        android:textColorLink="#ddddf0"
+        android:textSize="20sp"
+        app:cornerRadius="50dp"
+        app:iconTint="#ddddf0"
+        app:layout_constraintTop_toBottomOf="@+id/createEmailEditText"
+        app:strokeColor="#ddddf0"
+        app:strokeWidth="4dp" />
+
+    <ProgressBar
+        android:id="@+id/createUserProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="15dp"
+        android:indeterminate="true"
+        android:indeterminateOnly="false"
+        android:indeterminateTint="#121260"
+        android:indeterminateTintMode="src_atop"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createButton" />
+
+</LinearLayout>
+
