@@ -2,6 +2,10 @@ instructions:
 
 the app interacts with the server's api, by requesting REGISTER, LOGIN, LIST USERS, CREATE, UPDATE.
 DELETE doesnt used because the api returns only an error. 
+normally i would fetch data from api and save it in the database by using the repository
+and observe changes and update fragments/activities. but since data cannot be added, deleted or updated
+on server side i just used the api to get responses to simulate interation with it.
+
 login and register pages both made just for good practice to simulate interactions with API, 
 callback data doesnt used, since nothing really created.
 register and login requires email field: eve.holt@reqres.in,  password: any.
@@ -19,7 +23,7 @@ if more than one result is found pressing on next arrow moves to the next result
 
 on the buttom right corner there is a button to create new user. in a new fragment it requires to fill
 3 fields and optionally upload image, images saved as strings. creating sends requests to api
-with constant name and job, and on callback user is created and saved in the database.
+with constant name and job (just for good practice), and on callback user is created and saved in the database.
 the location of newly created user is based on free space on each page if there is no free space
 new page is made.
 
