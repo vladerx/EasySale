@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -48,6 +49,7 @@ public class CreateUserFragment extends Fragment {
     private int totalPages = 2;
     private int pageWithSpace = -1;
     private int currentPage = 1;
+    private Observer observer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,6 +63,33 @@ public class CreateUserFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(this).get(ViewModel.class);
+
+        observer = (Observer<ManageUser>) manageUser -> {
+            fcub.createUserProgressBar.setVisibility(View.INVISIBLE);
+            if (manageUser != null){
+                Toast.makeText(getContext(), "User Created Successfully", Toast.LENGTH_SHORT).show();
+                viewModel.addNewUser(user);
+                status = 0;
+
+                UserListFragment userListFragment = new UserListFragment();
+                Bundle bundle = new Bundle();
+                if (pageWithSpace > totalPages){
+                    totalPages++;
+                    bundle.putInt("totalPages", totalPages);
+                }
+                bundle.putInt("currentPage",pageWithSpace);
+                userListFragment.setArguments(bundle);
+
+                FragmentManager fm = requireActivity().getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.recycContainLayout, userListFragment);
+                ft.commit();
+            } else {
+                status = 0;
+                Toast.makeText(getContext(), "User Created Unsuccessfully", Toast.LENGTH_SHORT).show();
+            }
+
+        };
 
         Glide.with(getContext()).load(R.drawable.upload_image_normal).fitCenter().into(fcub.createImageView);
 
@@ -108,7 +137,7 @@ public class CreateUserFragment extends Fragment {
                 user = new User(100,fcub.createEmailEditText.getText().toString(),fcub.createFNEditText.getText().toString(),fcub.createLNEditText.getText().toString()
                         ,avatar, String.valueOf(pageWithSpace));
                 fcub.createUserProgressBar.setVisibility(View.VISIBLE);
-                viewModel.createUser(this);
+                viewModel.createUser().observe(getViewLifecycleOwner(), observer);
             } else {
                 fcub.createUserProgressBar.setVisibility(View.INVISIBLE);
                 Toast.makeText(getContext(), "All Fields Required to Fill!", Toast.LENGTH_SHORT).show();
@@ -176,33 +205,6 @@ public class CreateUserFragment extends Fragment {
         if (!found){
             pageWithSpace = totalPages+1;
         }
-    }
-
-    public void getCallback(ManageUser manageUser, String code){
-        fcub.createUserProgressBar.setVisibility(View.INVISIBLE);
-        String codeResponse = " : Successful Creation!";
-        if (manageUser != null){
-            viewModel.addNewUser(user);
-            status = 0;
-
-            UserListFragment userListFragment = new UserListFragment();
-            Bundle bundle = new Bundle();
-            if (pageWithSpace > totalPages){
-                totalPages++;
-                bundle.putInt("totalPages", totalPages);
-            }
-            bundle.putInt("currentPage",pageWithSpace);
-            userListFragment.setArguments(bundle);
-
-            FragmentManager fm = requireActivity().getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.recycContainLayout, userListFragment);
-            ft.commit();
-        } else {
-            codeResponse = " : Error Occurred While Creating User!";
-            status = 0;
-        }
-        Toast.makeText(getContext(), "Code : "+ code + codeResponse, Toast.LENGTH_SHORT).show();
     }
 
     public void callbackFailed (String message){

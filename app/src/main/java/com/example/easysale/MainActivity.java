@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
             ft.commit();
         } else {
             UserListFragment userListFragment = new UserListFragment();
-
             if (status != -1) {
                 Bundle bundle = new Bundle();
                 bundle.putInt("totalPages", sharedPreferences.getInt("totalPages", 0));

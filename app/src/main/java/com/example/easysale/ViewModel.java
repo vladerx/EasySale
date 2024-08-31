@@ -9,7 +9,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.easysale.data.ManageUser;
+import com.example.easysale.data.Result;
 import com.example.easysale.data.User;
+import com.example.easysale.data.UserResponse;
 
 import java.util.List;
 
@@ -21,31 +23,31 @@ public class ViewModel extends AndroidViewModel {
         this.repository = new UserRepository(application);
     }
 
-    public void getUser(UpdateUserFragment  updateUserFragment){
-        repository.getUserData(updateUserFragment);
+    //api
+    public MutableLiveData<UserResponse> getUser(){
+        return repository.getUserData();
+    }
+    public MutableLiveData<Result> petchUsersPerPage(int totalPages){
+        return repository.petchUsersPerPage(totalPages);
+    }
+    public MutableLiveData<ManageUser> createUser(){
+        return repository.createUser();
+    }
+    public MutableLiveData<ManageUser> registerUser(String email, String password){
+        return repository.registerUser(email, password);
     }
 
-    public void petchUsersPerPage(UserListFragment userListFragment, int totalPages){
-        repository.petchUsersPerPage(userListFragment,totalPages);
+    public MutableLiveData<ManageUser> loginUser(String email, String password){
+       return repository.loginUser(email, password);
     }
-    public void createUser(CreateUserFragment createUserFragment){
-        repository.createUser(createUserFragment);
-    }
-    public void registerUser(String email, String password, LoginActivity loginActivity){
-        repository.registerUser(email, password, loginActivity);
+    public MutableLiveData<ManageUser> updateUser(){
+        return repository.updateUser();
     }
 
-    public void loginUser(String email, String password, LoginActivity loginActivity){
-       repository.loginUser(email, password, loginActivity);
-    }
-    public void updateUser(UpdateUserFragment updateUserFragment){
-        repository.updateUser(updateUserFragment);
-    }
-
+    //database
     public LiveData<List<User>> getAllUsersFromDB() {
         return repository.getAllUsers();
     }
-
     public void addNewUser(User user){
         repository.addUser(user);
     }

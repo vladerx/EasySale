@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -30,6 +31,7 @@ import com.example.easysale.api.ApiService;
 import com.example.easysale.api.RetrofitInstance;
 import com.example.easysale.data.Result;
 import com.example.easysale.data.User;
+import com.example.easysale.data.UserResponse;
 import com.example.easysale.databinding.FragmentUserListBinding;
 import com.example.easysale.room.UserAdapter;
 
@@ -54,12 +56,12 @@ public class UserListFragment extends Fragment {
     private ViewModel viewModel;
     private int totalPages = 0;
     public int currentPage = 1;
-    private String searchWord = "";
     private List<User> foundUsers = new ArrayList<>();
     private int userIndex = -1;
     private boolean isSearching = false;
     private int perPage = 6;
     private boolean isDragged = false;
+    private Observer observer;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,6 +74,24 @@ public class UserListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        observer = (Observer<Result>) result -> {
+            if (result != null && result.getUsers() != null){
+                List<User> users = result.getUsers();
+                if (users.size() != 0) {
+                    for(User user : users){
+                        user.setPage(String.valueOf(totalPages+1));
+                    }
+                    viewModel.insertAllUsers(users);
+                    totalPages++;
+                    perPage = result.getPerPage();
+                    petchUsersPerPage();
+                } else markDataRecived(totalPages);
+            } else {
+                if (totalPages == 0)
+                    Toast.makeText(getContext(), "Failed To get Data From the Server", Toast.LENGTH_SHORT).show();
+            }
+        };
 
         checkDataOnBegin();
 
@@ -105,13 +125,13 @@ public class UserListFragment extends Fragment {
                 if (foundPage != -1) {
                     if (foundUsers.size() > 1)
                         fulb.searchArrowImageView.setImageAlpha(255);
-
                     if (foundPage != currentPage) {
                         currentPage = foundPage;
                         setUsersForCurrentPage();
                     } else {
                         searchForUser();
-                        isSearching = false;
+                        if (foundUsers.size() == 1)
+                            isSearching = false;
                     }
                 } else {
                     Toast.makeText(getContext(), "No Results Found!", Toast.LENGTH_SHORT).show();
@@ -223,7 +243,6 @@ public class UserListFragment extends Fragment {
         synchronized (usersArrayList) {
             for (User user : usersArrayList) {
                 if (user.getFirstName().toLowerCase().contains(searchPhrase.toLowerCase()) || user.getLastName().toLowerCase().contains(searchPhrase.toLowerCase())) {
-                    searchWord = searchPhrase;
                     foundUsers.add(user);
                 }
             }
@@ -249,7 +268,7 @@ public class UserListFragment extends Fragment {
     private void petchUsersPerPage(){
         Integer status = checkIfDataRecived();
         if (status == -1){
-            viewModel.petchUsersPerPage(this,totalPages);
+            viewModel.petchUsersPerPage(totalPages).observe(getViewLifecycleOwner(), observer);
         } else totalPages = status;
 
     }
@@ -289,11 +308,9 @@ public class UserListFragment extends Fragment {
                 if (userIndex == foundUsers.size()-1){
                     foundUsers.clear();
                     fulb.searchArrowImageView.setImageAlpha(100);
-                    searchWord = "";
                     isSearching = false;
                 }
             }
-
         } else migratePagesDown();
     }
 
@@ -362,27 +379,6 @@ public class UserListFragment extends Fragment {
             markDataRecived(totalPages);
         }
         setUsersForCurrentPage();
-    }
-
-    public void getCallback(Result result, String code){
-        if (result != null && result.getUsers() != null){
-            List<User> users = result.getUsers();
-            if (users.size() != 0) {
-                for(User user : users){
-                    user.setPage(String.valueOf(totalPages+1));
-                }
-                viewModel.insertAllUsers(users);
-                totalPages++;
-                perPage = result.getPerPage();
-                petchUsersPerPage();
-            } else markDataRecived(totalPages);
-        } else {
-            if (totalPages == 0)
-                Toast.makeText(getContext(), "Failed To get Data From the Server Code : "+code, Toast.LENGTH_SHORT).show();
-        }
-    }
-    public void callbackFailed (String message){
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
 

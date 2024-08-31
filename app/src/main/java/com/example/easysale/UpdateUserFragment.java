@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.util.Log;
@@ -29,6 +30,7 @@ import com.example.easysale.api.ApiService;
 import com.example.easysale.api.RetrofitInstance;
 import com.example.easysale.data.ManageUser;
 import com.example.easysale.data.User;
+import com.example.easysale.data.UserResponse;
 import com.example.easysale.databinding.FragmentUpdateUserBinding;
 
 import retrofit2.Call;
@@ -44,6 +46,8 @@ public class UpdateUserFragment extends Fragment {
     private ViewModel viewModel;
     private int currentPage;
     private ActivityResultLauncher<Intent> resultLauncher;
+    private Observer observer;
+    private Observer obser;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +63,39 @@ public class UpdateUserFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(ViewModel.class);
 
+        observer = (Observer<UserResponse>) userResponse -> {
+            fuub.updateUserProgressBar.setVisibility(View.INVISIBLE);
+            if (userResponse != null){
+                switchVisiblity();
+                Toast.makeText(getActivity(), "User Fetched Successfully!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getActivity(), "User Fetched Unsuccessfully!", Toast.LENGTH_SHORT).show();
+                goBack();
+            }
+
+        };
+
+        obser = (Observer<ManageUser>) manageUser -> {
+            fuub.updateUserProgressBar.setVisibility(View.INVISIBLE);
+            if (manageUser != null){
+                Toast.makeText(getContext(), "User Updated Successfully", Toast.LENGTH_SHORT).show();
+                viewModel.updateUser(tempUser);
+                status = 0;
+                UserListFragment userListFragment = new UserListFragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("currentPage",currentPage);
+                userListFragment.setArguments(bundle);
+
+                FragmentManager fm = requireActivity().getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.recycContainLayout,userListFragment );
+                ft.commit();
+            } else {
+                status = 0;
+                Toast.makeText(getContext(), "User Updated Unsuccessfully", Toast.LENGTH_SHORT).show();
+            }
+
+        };
 
         Glide.with(getContext()).load(R.drawable.upload_image_normal).fitCenter().into(fuub.updateImageView);
 
@@ -85,7 +122,7 @@ public class UpdateUserFragment extends Fragment {
         Integer stat = sharedPreferences.getInt("currentActivity", -1);
 
         if (stat != 1){
-            viewModel.getUser(this);
+            viewModel.getUser().observe(getViewLifecycleOwner(), observer);
         } else switchVisiblity();
 
         resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -115,7 +152,7 @@ public class UpdateUserFragment extends Fragment {
                 tempUser.setFirstName(fuub.updateFNEditText.getText().toString());
                 tempUser.setLastName(fuub.updateLNEditText.getText().toString());
                 tempUser.setEmail(fuub.updateEmailEditText.getText().toString());
-                viewModel.updateUser(this);
+                viewModel.updateUser().observe(getViewLifecycleOwner(), obser);
             } else {
                 fuub.updateUserProgressBar.setVisibility(View.INVISIBLE);
                 Toast.makeText(getContext(), "All Fields Required to Fill!", Toast.LENGTH_SHORT).show();
@@ -155,43 +192,6 @@ public class UpdateUserFragment extends Fragment {
         fuub.updateLNEditText.setVisibility(View.VISIBLE);
         fuub.updateEmailEditText.setVisibility(View.VISIBLE);
         fuub.updateUserProgressBar.setVisibility(View.INVISIBLE);
-    }
-
-    public void getUserCallback(String code){
-        switchVisiblity();
-        Toast.makeText(getActivity(), "Code : "+ code + " : User Fetched Successfully!", Toast.LENGTH_SHORT).show();
-    }
-
-    public void userCallbackFailed(String code){
-        Toast.makeText(getActivity(), "Code : "+ code + " : User Fetched Unsuccessfully!", Toast.LENGTH_SHORT).show();
-        goBack();
-    }
-
-    public void getCallback(ManageUser manageUser, String code){
-        fuub.updateUserProgressBar.setVisibility(View.INVISIBLE);
-        String codeResponse = " : Successful Update!";
-        if (manageUser != null){
-            viewModel.updateUser(tempUser);
-            status = 0;
-            UserListFragment userListFragment = new UserListFragment();
-            Bundle bundle = new Bundle();
-            bundle.putInt("currentPage",currentPage);
-            userListFragment.setArguments(bundle);
-
-            FragmentManager fm = requireActivity().getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.recycContainLayout,userListFragment );
-            ft.commit();
-        } else {
-            codeResponse = " : Error Occurred While Updating User!";
-            status = 0;
-        }
-        Toast.makeText(getContext(), "Code : "+ code + codeResponse, Toast.LENGTH_SHORT).show();
-    }
-
-    public void callbackFailed (String message){
-        fuub.updateUserProgressBar.setVisibility(View.INVISIBLE);
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

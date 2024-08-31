@@ -34,29 +34,27 @@ import retrofit2.Response;
 
 public class UserRepository {
 
-    private ArrayList<User> users = new ArrayList<>();
+    private MutableLiveData<ManageUser> manageUser = new MutableLiveData<>();
+    private MutableLiveData<UserResponse> userResponse = new MutableLiveData<>();
+    private MutableLiveData<Result> result = new MutableLiveData<>();
     private final UserDao userDao;
-    private Application application;
-    private Activity currentActivity;
-    private CreateUserFragment createUserFragment;
-    private UpdateUserFragment  updateUserFragment;
-    private UserListFragment userListFragment;
+    private final Application application;
+
 
     public UserRepository(Application application) {
         this.application = application;
-        UserDatabase userDatabase = UserDatabase.getInstance(application);
-        this.userDao = userDatabase.getUserDao();
+        this.userDao = UserDatabase.getInstance(application).getUserDao();
     }
     //api
 
-    public void loginUser(String email, String password, LoginActivity loginActivity){
-        currentActivity = loginActivity;
+    public MutableLiveData<ManageUser> loginUser(String email, String password){
         ApiService apiService = RetrofitInstance.getService();
         Call<ManageUser> call = apiService.loginUser(email, password);
         call.enqueue(new Callback<ManageUser>() {
             @Override
             public void onResponse(Call<ManageUser> call, Response<ManageUser> response) {
-                ((LoginActivity) currentActivity).getCallback(response.body(), String.valueOf(response.code()));
+                manageUser.setValue(response.body());
+                Toast.makeText(application.getApplicationContext(), "Code: "+response.code(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -64,91 +62,91 @@ public class UserRepository {
                 Toast.makeText(application.getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        return manageUser;
     }
-    public void registerUser(String email, String password, LoginActivity loginActivity){
-        currentActivity = loginActivity;
+    public MutableLiveData<ManageUser> registerUser(String email, String password){
         ApiService apiService = RetrofitInstance.getService();
         Call<ManageUser> call = apiService.registerNewUser(email, password);
         call.enqueue(new Callback<ManageUser>() {
             @Override
             public void onResponse(Call<ManageUser> call, Response<ManageUser> response) {
-                ((LoginActivity) currentActivity).getCallback(response.body(), String.valueOf(response.code()));
+                manageUser.setValue(response.body());
+                Toast.makeText(application.getApplicationContext(), "Code: "+response.code(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<ManageUser> call, Throwable throwable) {
-                ((LoginActivity) currentActivity).callbackFailed(throwable.getMessage());
+                Toast.makeText(application.getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        return manageUser;
     }
 
-    public void petchUsersPerPage(UserListFragment userListFragment, int totalPages){
-        this.userListFragment = userListFragment;
+    public MutableLiveData<Result> petchUsersPerPage(int totalPages){
         ApiService apiService = RetrofitInstance.getService();
         Call<Result> call = apiService.getPageData(String.valueOf((totalPages+1)));
         call.enqueue(new Callback<Result>() {
             @Override
             public void onResponse(Call<Result> call, Response<Result> response) {
-                Result result = response.body();
-                userListFragment.getCallback(result,String.valueOf(response.code()));
+                result.setValue(response.body());
+                Toast.makeText(application.getApplicationContext(), "Code: "+response.code() + " page fetched!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<Result> call, Throwable throwable) {
-                userListFragment.callbackFailed(throwable.getMessage());
+                Toast.makeText(application.getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        return result;
     }
-    public void createUser(CreateUserFragment  createUserFragment){
-        this.createUserFragment = createUserFragment;
+    public MutableLiveData<ManageUser> createUser(){
         ApiService apiService = RetrofitInstance.getService();
         Call<ManageUser> call = apiService.createUser("morpheus","leader");
         call.enqueue(new Callback<ManageUser>() {
             @Override
             public void onResponse(Call<ManageUser> call, Response<ManageUser> response) {
-                ManageUser manageUser = response.body();
-                createUserFragment.getCallback(manageUser,String.valueOf(response.code()));
+                manageUser.setValue(response.body());
+                Toast.makeText(application.getApplicationContext(), "Code: "+response.code(), Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onFailure(Call<ManageUser> call, Throwable throwable) {
-                createUserFragment.callbackFailed(throwable.getMessage());
+                Toast.makeText(application.getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        return manageUser;
     }
-    public void updateUser(UpdateUserFragment  updateUserFragment){
-        this.updateUserFragment = updateUserFragment;
+    public MutableLiveData<ManageUser> updateUser(){
         ApiService apiService = RetrofitInstance.getService();
         Call<ManageUser> call = apiService.updateUser("2","morpheus","zion resident");
         call.enqueue(new Callback<ManageUser>() {
             @Override
             public void onResponse(Call<ManageUser> call, Response<ManageUser> response) {
-                ManageUser manageUser = response.body();
-                updateUserFragment.getCallback(manageUser,String.valueOf(response.code()));
+                manageUser.setValue(response.body());
+                Toast.makeText(application.getApplicationContext(), "Code: "+response.code(), Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onFailure(Call<ManageUser> call, Throwable throwable) {
-                updateUserFragment.callbackFailed(throwable.getMessage());
+                Toast.makeText(application.getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        return manageUser;
     }
-    public void getUserData(UpdateUserFragment  updateUserFragment){
-        this.updateUserFragment = updateUserFragment;
+    public MutableLiveData<UserResponse> getUserData(){
         ApiService apiService = RetrofitInstance.getService();
         Call<UserResponse> call = apiService.getUser("2");
         call.enqueue(new Callback<UserResponse>() {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
-                UserResponse result = response.body();
-                if (result != null && result.getUser() != null){
-                    updateUserFragment.getUserCallback(String.valueOf(response.code()));
-                } else updateUserFragment.userCallbackFailed(String.valueOf(response.code()));
+                userResponse.setValue(response.body());
+                Toast.makeText(application.getApplicationContext(), "Code: "+response.code(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<UserResponse> call, Throwable throwable) {
-                updateUserFragment.userCallbackFailed(String.valueOf(throwable.getMessage()));
+                Toast.makeText(application.getApplicationContext(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        return userResponse;
     }
 
     //database

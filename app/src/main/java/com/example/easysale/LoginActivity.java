@@ -12,6 +12,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.easysale.api.ApiService;
@@ -29,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     ActivityLoginBinding alb;
     private boolean isRegisterClicked = false;
     private ViewModel viewModel;
+    private Observer observer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         View view = alb.getRoot();
         setContentView(view);
         SharedPreferences sharedPreferences = getSharedPreferences("saveData", Context.MODE_PRIVATE);
-        Integer status = sharedPreferences.getInt("currentActivity", -1);
+        int status = sharedPreferences.getInt("currentActivity", -1);
         if (status > -1 && status < 3){
             Intent intent = new Intent(this,MainActivity.class);
             startActivity(intent);
@@ -50,7 +52,19 @@ public class LoginActivity extends AppCompatActivity {
                 alb.registerTextView.setVisibility(View.INVISIBLE);
             }
         }
+        observer = (Observer<ManageUser>) manageUser -> {
+            alb.loginProgressBar.setVisibility(View.INVISIBLE);
+            if (manageUser != null){
+                if (isRegisterClicked){
+                    Toast.makeText(getApplicationContext(), "Succesful Registration!", Toast.LENGTH_SHORT).show();
+                } else Toast.makeText(getApplicationContext(), "Succesful Login!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext(), "Unsuccesful Login!", Toast.LENGTH_SHORT).show();
+            }
 
+        };
 
         viewModel = new ViewModelProvider(this).get(ViewModel.class);
 
@@ -64,8 +78,8 @@ public class LoginActivity extends AppCompatActivity {
             if (!alb.emailEditText.getText().toString().equals("") && !alb.passwordEditText.getText().toString().equals("")) {
                 alb.loginProgressBar.setVisibility(View.VISIBLE);
                 if (!isRegisterClicked)
-                    viewModel.loginUser(alb.emailEditText.getText().toString(),alb.passwordEditText.getText().toString(), this);
-                else viewModel.registerUser(alb.emailEditText.getText().toString(),alb.passwordEditText.getText().toString(), this);
+                    viewModel.loginUser(alb.emailEditText.getText().toString(),alb.passwordEditText.getText().toString()).observe(this, observer);
+                else viewModel.registerUser(alb.emailEditText.getText().toString(),alb.passwordEditText.getText().toString()).observe(this, observer);;
             } else {
                 alb.loginProgressBar.setVisibility(View.INVISIBLE);
                 Toast.makeText(this, "All Fields Required to Fill!", Toast.LENGTH_SHORT).show();
@@ -87,24 +101,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    public void getCallback(ManageUser manageUser, String code){
-        alb.loginProgressBar.setVisibility(View.INVISIBLE);
-        String codeResponse = " : Missing password";
-        if (manageUser != null){
-            if (!isRegisterClicked)
-                codeResponse = " Successful Login!";
-            else codeResponse = " Successful Registration!";
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        }
-        Toast.makeText(getApplicationContext(), "Code : "+ code + codeResponse, Toast.LENGTH_SHORT).show();
-    }
-
-    public void callbackFailed(String message){
-        alb.loginProgressBar.setVisibility(View.INVISIBLE);
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
